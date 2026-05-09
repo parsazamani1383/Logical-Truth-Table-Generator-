@@ -1,294 +1,126 @@
-🧬 Logical Truth Table Generator (C)
+# 🧬 Logical Truth Table Generator (C)
 
+![Language](https://img.shields.io/badge/Language-C-blue)
+![Build](https://img.shields.io/badge/Build-Passing-brightgreen)
+![Field](https://img.shields.io/badge/Field-Discrete_Mathematics-orange)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
+A high-performance, stack-based logical expression evaluator written in C.  
+Parses infix logical expressions (with variables `A`, `B`, `C` and operators `!`, `&`, `|`), and generates a complete, dynamically-sized truth table.
 
+---
 
+## 🚀 Overview
 
+In discrete mathematics, truth tables are the foundation of propositional logic.  
+This project implements a **mini-compiler** pipeline:
 
+1. **Lexical Scanning:** Detects propositions used in the input
+2. **Parsing:** Converts infix notation to postfix (Reverse Polish Notation) using the **Shunting-Yard Algorithm**
+3. **Evaluation:** Computes the boolean result for all \(2^n\) possible states using a stack-based evaluator
 
+---
 
+## 🧩 Supported Grammar
 
+**Variables:**  
+- `A`, `B`, `C` (case-sensitive)
 
+**Operators:**  
+- `!` : NOT (unary)  
+- `&` : AND (binary)  
+- `|` : OR (binary)  
 
+**Parentheses:**  
+- `( )` for grouping
 
+**Examples:**
+- `A & B`
+- `!C`
+- `A | (B & !C)`
+- `(A & B) | !C`
 
+> Whitespace is allowed anywhere
 
+---
 
+## 🛠 Features
 
+- **Dynamic Row Generation:**  
+  Automatically detects used variables and generates the corresponding \(2^n\) rows.
 
+- **Operator Precedence:**  
+  Correctly handles `!` > `&` > `|`.
 
-A high-performance, stack-based logical expression evaluator written in C. This tool parses infix logical expressions (containing A, B, C, and operators !, &, |) and generates a complete, dynamically-sized truth table.
+- **Parentheses Support:**  
+  Deeply nested sub-expressions are handled.
 
+- **Memory Efficient:**  
+  Uses stack and bit manipulation for fast state generation.
 
+---
 
-🚀 Overview
-
-In discrete mathematics, truth tables are the foundation of propositional logic. This project implements a Mini-Compiler pipeline:
-
-
-
-
-
-Lexical Scanning: Detecting active propositions
-
-
-
-Parsing: Converting Infix notation to Reverse Polish Notation (RPN/Postfix) using the Shunting-Yard Algorithm
-
-
-
-Evaluation: Computing the boolean result for all (2^n) possible states using a Stack-based Evaluator
-
-
-
-🧩 Supported Grammar
-
-Variables
-
-
-
-
-
-A, B, C (case-sensitive)
-
-Operators
-
-
-
-
-
-! : NOT (unary)
-
-
-
-& : AND (binary)
-
-
-
-| : OR (binary)
-
-Parentheses
-
-
-
-
-
-( ) for grouping
-
-Expression
-
-An expression may contain variables, operators, and parentheses, for example:
-
-
-
-
-
-A & B
-
-
-
-!C
-
-
-
-A | (B & !C)
-
-
-
-(A & B) | !C
-
-
-
-Whitespace is allowed anywhere.
-
-
-
-🛠 Features
-
-
-
-
-
-Dynamic Row Generation
-Automatically detects if you used 1, 2, or 3 variables and generates (2^1), (2^2), or (2^3) rows accordingly.
-
-
-
-Operator Precedence
-Correctly handles ! (NOT) > & (AND) > | (OR).
-
-
-
-Parentheses Support
-Deeply nested sub-expressions are handled via Shunting-Yard logic.
-
-
-
-Memory Efficient
-Uses fixed-size stacks and bit-manipulation for state generation.
-
-
-
-📊 Flowchart
-
+## 📊 Flowchart
+```mermaid
 graph TD
-    A[User Input: Infix Expression] --> B{Shunting-Yard Parser}
-    B --> C[Postfix Expression - RPN]
-    C --> D[Truth Table Engine]
-    D --> E[Bit-Manipulation for States]
-    E --> F[Stack-based Evaluator]
-    F --> G[Formatted ASCII Table Output]
+A[User Input: Infix Expression] --> B{Shunting-Yard Parser}
+B --> C[Postfix Expression - RPN]
+C --> D[Truth Table Engine]
+D --> E[Bit-Manipulation for States]
 
+## 🧠 Technical Deep Dive
 
+1. Shunting-Yard Algorithm
 
-
-🧠 Technical Deep Dive
-
-1. The Shunting-Yard Algorithm
-
-The core of the parser. It uses an operator stack to re-order the expression based on precedence rules.
+Reorders infix expressions based on operator precedence, using an operator stack.
 
 Input: A | (B & !C)
-Output (Postfix/RPN): A B C ! & |
 
-How it works (high level)
+Output (Postfix): A B C ! & |
 
-
-
-
-
-Variables are sent directly to the output stream (postfix).
-
-
-
-Operators are pushed/popped based on precedence:
-
-
-
-
-
-! has highest precedence
-
-
-
-& next
-
-
-
-| lowest
-
-
-
-Parentheses control grouping by forcing stack operations until the matching ( is found.
-
-This ensures that the postfix expression preserves the same semantics as the original infix expression.
-
-
+    Variables go directly to output (postfix).
+    Operators are managed by precedence:
+        ! (highest)
+        &
+        | (lowest)
+    Parentheses ensure correct grouping.
 
 2. Postfix Evaluation (Stack-based)
 
-Unlike infix, postfix doesn’t need parentheses. We push operands (A, B, C values) onto the stack.
-
-When an operator is encountered:
-
-
-
-
-
-! pops one operand, applies NOT, and pushes the result back.
-
-
-
-& pops two operands, applies AND, and pushes the result back.
-
-
-
-| pops two operands, applies OR, and pushes the result back.
-
-At the end of evaluation, the stack contains the final boolean result for that row.
-
-
+    Pushes variable values for each row.
+    ! pops one value, applies NOT.
+    &/| pop two values, apply AND/OR.
 
 3. State Generation (Truth Values)
 
-Instead of nested loops, we use a single loop from (0) to (2^n - 1).
+    Uses a single loop from 0 to 2^n - 1.
+    Each bit of the loop index represents a variable’s truth value.
 
-Each bit of the loop index represents the truth value of a variable.
-
-For example, with 3 variables (A, B, C) you can interpret the binary pattern as:
-
-
-
-
-
-(0) (000) -> (A=0, B=0, C=0)
-
-
-
-(1) (001) -> (A=0, B=0, C=1)
-
-
-
-(2) (010) -> (A=0, B=1, C=0)
-
-
-
-(3) (011) -> (A=0, B=1, C=1)
-
-
-
-...
-
-
-
-(7) (111) -> (A=1, B=1, C=1)
-
-This compact approach keeps iteration simple and efficient.
-
-
-
-💻 Compilation & Usage
+## 💻 Compilation & Usage
 
 Prerequisites
 
-
-
-
-
-GCC or any standard C compiler
+    GCC or any standard C compiler
 
 Build
 
+                                                                    bash
 gcc -O3 truth_table_gen.c -o truth_table
-
 
 Run
 
+                                                                    bash
 ./truth_table
-
-
-Input
 
 When running, you will be prompted to enter a logical expression using:
 
-
-
-
-
-Variables: A, B, C
-
-
-
-Operators: !, &, |
-
-
-
-Parentheses: (, )
-
-
+    Variables: A, B, C
+    Operators: !, &, |
+    Parentheses: (, )
 
 ✨ Example Session
 
+                                                                    text
 Enter logical expression: (A & B) | !C
 
 A B C | Result
@@ -302,58 +134,34 @@ A B C | Result
 1 1 0 |   1
 1 1 1 |   1
 
-
-
-
-The table dynamically includes only the variables present in your input expression.
-
-
+    The table dynamically includes only the variables present in your input expression.
 
 🔬 Complexity Analysis
-
-OperationComplexityParsing (Infix to Postfix)(O(N)) where (N) is expression lengthEvaluation per row(O(N))Total Table Generation(O(2^V \cdot N)) where (V) is number of variables
+Operation 	Complexity
+Parsing (Infix→Postfix) 	O(N)O(N) (expression length)
+Evaluation per row 	O(N)O(N)
+Total Table Generation 	O(2V⋅N)O(2V⋅N)
 
 Where:
 
-
-
-
-
-(V \in {1,2,3})
-
-
-
-(2^V) is the number of truth table rows
-
-
+    VV = number of variables ∈{1,2,3}∈{1,2,3}
+    2V2V = number of truth table rows
 
 🧾 Notes / Assumptions
 
-
-
-
-
-Expression parsing follows standard logical precedence: [ ! ;>; & ;>; | ]
-
-
-
-! is unary and binds strongly.
-
-
-
-Parentheses override precedence as expected.
-
-
+    Logical operator precedence: ! > & > |
+    ! is unary and binds strongly
+    Parentheses override precedence as expected
 
 👨‍💻 Author
 
 Parsa
+
 Computer Engineering Student | AI & Mathematics Enthusiast
 
-"In logic, there are no accidents."
-
-
-
+“In logic, there are no accidents.”
 📄 License
 
 © 2026 Parsa - Open Source under MIT License.
+E --> F[Stack-based Evaluator]
+F --> G[Formatted ASCII Table Output]
